@@ -1,3 +1,6 @@
+/*Nicholas Rich 4/11/18
+ *a red black tree
+ */
 #include <iostream>
 #include <assert.h>
 
@@ -7,8 +10,12 @@ struct node {
   node* left = NULL;
   node* right = NULL;
   node* parent = NULL;
-  int color = 0;//0 is red 1 is black
-  int value = 0;
+  int color;
+  int value;
+  node(int number) {
+  color = 0;//0 is red 1 is black
+  value = number;
+  }
 };
 
 node* parent(node* n) {
@@ -41,6 +48,7 @@ node* uncle(node* n) {
   }
   return brother(p);
 }
+
 /*end of node stuff*/
 
 /*insert stuff*/
@@ -61,21 +69,17 @@ node* insert(node* root, node* n) {
 /*creating the prototypes*/
 void rotateLeft(node* n);
 void rotateRight(node* n);
-void insertCase1(node* n);
-void insertCase2(node* n);
-void insertCase3(node* n);
-void insertCase4(node* n);
-void insertCase4step2(node* n);
 void print(node* current, int depth);
 /*end of the prototypes*/
 
 int main () {
-  node* n = new node();
-  n->value = 5;
+  node* n = new node(5);
   insert(root,n);
-  node* b = new node();
-  b->value = 6;
+  root = n;
+  node* b = new node(6);
   insert(root,b);
+  node* c = new node(7);
+  insert(root,c);
   print(n,0);
   return 0;
 }
@@ -124,66 +128,46 @@ void insertRe(node* root, node* n) {
 }
 
 void insertRepairTree(node* n) {
-  if (parent(n) == NULL) {
-    insertCase1(n);
+  if (parent(n) == NULL) {//case 1
+       if (parent(n) == NULL) {
+	n->color = 1;
+      }
   }
-  else if (parent(n)->color == 1) {
-    insertCase2(n);
+  else if (parent(n)->color == 1) {//case 2
+    return;
   }
-  else if(uncle(n)->color == 0) {
-    insertCase3(n);
-  }
-  else {
-    insertCase4(n);
-  }
-}
-
-void insertCase1(node* n) {
-  if (parent(n) == NULL) {
-    n->color = 1;
-  }
-}
-
-void insertCase2(node* n) {
-  return;
-}
-
-void insertCase3(node* n) {
-  parent(n)->color = 1;
-  uncle(n)->color = 1;
-  grandParent(n)->color = 0;
-  insertRepairTree(grandParent(n));
-}
-
-void insertCase4 (node* n) {
-  node* p = parent(n);
-  node* g = grandParent(n);
-  if (n == g->left->right) {
-    rotateLeft(p);
-    n = n->left;
-  }
-  else if (n == g->right->left) {
-    rotateRight(p);
-    n = n->right;
-  }
-  insertCase4step2(n);
-}
-
-void insertCase4step2(node* n) {
-  node* p = parent(n);
-  node* g = grandParent(n);
-  if (n == p->left) {
-    rotateRight(g);
-  }
-  else {
-    rotateLeft(g);
-    p->color = 1;
-    g->color = 0;
+  else if(uncle(n)->color == 0) {//case3
+    parent(n)->color = 1;
+    uncle(n)->color = 1;
+    grandParent(n)->color = 0;
+    insertRepairTree(grandParent(n));
+    }
+  else {//case 4
+    node* p = parent(n);
+    node* g = grandParent(n);
+    if (n == g->left->right) {
+      rotateLeft(n);
+      n = n->left;
+    }
+    else if (n == g->right->left) {
+      rotateRight(p);
+      n = n->right;
+    }
+    p = parent(n);
+    g = grandParent(n);
+    if (n == p->left) {
+      rotateRight(g);
+    }
+    else {
+      rotateLeft(g);
+      p->color = 1;
+      g->color = 0;
+    }
   }
 }
 
 void print(node* current, int depth) {
-  if (current->right != NULL && (current->right->value != 0)) {
+  if (current->right != NULL && (current->right != NULL)) {
       print(current->right, depth+1);
     }
     int tab = depth;
@@ -191,7 +175,7 @@ void print(node* current, int depth) {
       cout << "\t";
     }
     cout << current->value << endl;
-    if (current->right != NULL && (current->left->value != 0)) {
+    if (current->right != NULL && (current->left != NULL)) {
       print(current->right, depth+1);      
     }
 }
