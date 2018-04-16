@@ -2,7 +2,6 @@
  *a red black tree
  */
 #include <iostream>
-#include <assert.h>
 
 using namespace std;
 /*all containing the node and its functions*/  
@@ -20,7 +19,7 @@ struct node {
 
 node* parent(node* n) {
   return n->parent;
-}
+  }
 node* grandParent(node* n) {
   node* p = parent(n);
   if (p == NULL) {
@@ -76,17 +75,18 @@ int main () {
   node* n = new node(5);
   insert(root,n);
   root = n;
-  node* b = new node(6);
+  node* b = new node(7);
   insert(root,b);
-  node* c = new node(7);
+  node* c = new node(6);
   insert(root,c);
+  node* d = new node(5);
+  insert(root,d);
   print(n,0);
   return 0;
 }
 
 void rotateLeft(node* n) {
   node* nnew = n->right;
-  assert(nnew != NULL);
   n->right = nnew->left;
   nnew->left = n;
   nnew->parent - n->parent;
@@ -95,7 +95,6 @@ void rotateLeft(node* n) {
 
 void rotateRight(node* n) {
   node* nnew = n->left;
-  assert(nnew != NULL);
   n->left = nnew->right;
   nnew->right = n;
   nnew->parent = n->parent;
@@ -120,23 +119,21 @@ void insertRe(node* root, node* n) {
     else {
       root->right = n;
     }
-    n->parent = root;
+    /*n->parent = root;
     n->left = NULL;
     n->right = NULL;
-    n->color = 0;  
+    n->color = 0;  */
   }
 }
 
 void insertRepairTree(node* n) {
   if (parent(n) == NULL) {//case 1
-       if (parent(n) == NULL) {
-	n->color = 1;
-      }
+    n->color = 1;
   }
-  else if (parent(n)->color == 1) {//case 2
+  else if (parent(n)->color == 1) {//case 2 if the parent of n is black
     return;
   }
-  else if(uncle(n)->color == 0) {//case3
+  else if(uncle(n) != NULL && uncle(n)->color == 0) {//case3 if the uncle of n is red
     parent(n)->color = 1;
     uncle(n)->color = 1;
     grandParent(n)->color = 0;
@@ -148,6 +145,7 @@ void insertRepairTree(node* n) {
     if (n == g->left->right) {
       rotateLeft(n);
       n = n->left;
+      insertRepairTree(g);
     }
     else if (n == g->right->left) {
       rotateRight(p);
