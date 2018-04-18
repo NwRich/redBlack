@@ -47,34 +47,17 @@ node* uncle(node* n) {
   }
   return brother(p);
 }
-
-/*end of node stuff*/
-
-/*insert stuff*/
 void insertRe(node* root, node* n);
 void insertRepairTree(node* n);
-node* root;
-node* insert(node* root, node* n) {
-  insertRe(root, n);
-  insertRepairTree(n);
-  root = n;
-  while (parent(root) != NULL) {
-    root = parent(root);
-  }
-  return root;
-}
-/*end of the insert stuff*/
-
-/*creating the prototypes*/
+node* insert(node* root, node* n);
 void rotateLeft(node* n);
 void rotateRight(node* n);
 void print(node* current, int depth);
-/*end of the prototypes*/
 
 int main () {
+  node* root;
   node* n = new node(5);
   insert(root,n);
-  root = n;
   node* b = new node(7);
   insert(root,b);
   node* c = new node(6);
@@ -87,18 +70,32 @@ int main () {
 
 void rotateLeft(node* n) {
   node* nnew = n->right;
-  n->right = nnew->left;
-  nnew->left = n;
-  nnew->parent - n->parent;
-  n->parent = nnew;
+  if (nnew != NULL) {
+    n->right = nnew->left;
+    nnew->left = n;
+    nnew->parent - n->parent;
+    n->parent = nnew;
+  }
 }
 
 void rotateRight(node* n) {
   node* nnew = n->left;
-  n->left = nnew->right;
-  nnew->right = n;
-  nnew->parent = n->parent;
-  n->parent = nnew;
+  if (nnew != NULL) {
+    n->left = nnew->right;
+    nnew->right = n;
+    nnew->parent = n->parent;
+    n->parent = nnew;
+  }
+}
+
+node* insert(node* root, node* n) {
+  insertRe(root, n);
+  insertRepairTree(n);
+  root = n;
+  while (parent(root) != NULL) {
+    root = parent(root);
+  }
+  return root;
 }
 
 void insertRe(node* root, node* n) {
@@ -111,7 +108,7 @@ void insertRe(node* root, node* n) {
       root->left = n;
     }
   }
-  else if(root != NULL) {
+  else if(root != NULL && n->value >= root->value) {
     if (root->right != NULL) {
       insertRe(root->right, n);
       return;
@@ -119,10 +116,6 @@ void insertRe(node* root, node* n) {
     else {
       root->right = n;
     }
-    /*n->parent = root;
-    n->left = NULL;
-    n->right = NULL;
-    n->color = 0;  */
   }
 }
 
@@ -130,10 +123,10 @@ void insertRepairTree(node* n) {
   if (parent(n) == NULL) {//case 1
     n->color = 1;
   }
-  else if (parent(n)->color == 1) {//case 2 if the parent of n is black
-    return;
-  }
-  else if(uncle(n) != NULL && uncle(n)->color == 0) {//case3 if the uncle of n is red
+  else if (parent(n)->color == 0) {//case 2 if the parent of n is black
+    //   return;
+  
+    /* else*/ if(uncle(n) != NULL && uncle(n)->color == 0) {//case3 if the uncle of n is red
     parent(n)->color = 1;
     uncle(n)->color = 1;
     grandParent(n)->color = 0;
@@ -163,7 +156,7 @@ void insertRepairTree(node* n) {
     }
   }
 }
-
+}
 void print(node* current, int depth) {
   if (current->right != NULL && (current->right != NULL)) {
       print(current->right, depth+1);
