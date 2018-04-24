@@ -55,6 +55,7 @@ void rotateRight(node* n);
 void print(node* current, int depth);
 
 int main () {
+  //test code start
   node* root;
   node* n = new node(5);
   insert(root,n);
@@ -65,6 +66,7 @@ int main () {
   node* d = new node(5);
   insert(root,d);
   print(n,0);
+  //test code end
   return 0;
 }
 
@@ -111,32 +113,32 @@ void rotateRight(node* n) {
 }
   
 node* insert(node* root, node* n) {
-  insertRe(root, n);
-  insertRepairTree(n);
-  root = n;
-  while (parent(root) != NULL) {
-    root = parent(root);
+  insertRe(root, n);//call insert recusivley to put the node in place
+  insertRepairTree(n);//repair the tree passing in the new node
+  root = n;//root becomes the new node
+  while (parent(root) != NULL) {//while root has a parent
+    root = parent(root);//go up to the top of the tree
   }
-  return root;
+  return root;//return root
 }
 
 void insertRe(node* root, node* n) {
-  if (n->value < root->value) {
-    if (root->left != NULL) {
-      insertRe(root->left, n);
-      return;
+  if (n->value < root->value) {//if the input is less than the root
+    if (root->left != NULL) {//and the left root is not empty
+      insertRe(root->left, n);//go left and call insertRe again
+      return;//end
     }
-    else {
-      root->left = n;
+    else {//otherwise
+      root->left = n;//set left to be the input
     }
   }
-  else if(n->value >= root->value) {
-    if (root->right != NULL) {
-      insertRe(root->right, n);
-      return;
+  else if(n->value >= root->value) {//if the input is greater than or equal to the root
+    if (root->right != NULL) {//and the right root is not empty
+      insertRe(root->right, n);//go down the tree to the right
+      return;//end
     }
-    else {
-      root->right = n;
+    else {//otherwise
+      root->right = n;//set the right root as input
     }
   }
 }
@@ -146,48 +148,48 @@ void insertRepairTree(node* n) {
     n->color = 1;//set the color to black
   }
   else if (parent(n)->color == 0) {//if the color is red
-    if (uncle(n) && uncle(n)->color == 0) {
-      uncle(n)->color = 1;
-      parent(n)->color = 1;
-      grandParent(n)->color = 0;
-      insertRepairTree(grandParent(n));
+    if (uncle(n) != NULL && uncle(n)->color == 0) {//if the uncle is real and the uncle is red
+      uncle(n)->color = 1;//set the uncle to black
+      parent(n)->color = 1;//set the parent to black
+      grandParent(n)->color = 0;//set the grandparent to red
+      insertRepairTree(grandParent(n));//call inserRepairTree again with the grandparent
     }
-    else {
-      if (grandParent(n)->left && n == grandParent(n)->left->right) {
-	rotateLeft(parent(n));
-	n = n->left;
+    else {//otherwise
+      if (grandParent(n)->left != NULL && n == grandParent(n)->left->right != NULL) {//if the grandparent is left and left right are real 
+	rotateLeft(parent(n));//rotate left passing in the parent of node
+	n = n->left;//n becomes the left of n
       }
-      else if (grandParent(n)->right && n == grandParent(n)->right->left) {
-	rotateRight(parent(n));
-	n = n->right;
+      else if (grandParent(n)->right != NULL && n == grandParent(n)->right->left != NULL) {//the grandparents right and right left
+	rotateRight(parent(n));//rotate right passing in parent of node
+	n = n->right;//n becomes the right of n
       }
-      grandParent(n)->color= 0;
-      parent(n)->color = 1;
-      if (parent(n)->left == n) {
-	rotateRight(grandParent(n));
+      grandParent(n)->color = 0;//set the grandparents color to red
+      parent(n)->color = 1;//set the parents color to black
+      if (parent(n)->left == n) {//if the parents left is n
+	rotateRight(grandParent(n));//rotate right passing in the grandparent
       }
-      else {
-	rotateLeft(grandParent(n));
+      else {//otherwise
+	rotateLeft(grandParent(n));//rotate left passing in the grandparent
       }
     }
   }
 }
  
 void print(node* current, int depth) {
-  if (current->right != NULL) {
-    print(current->right, depth+1);
+  if (current->right != NULL) {//if there is a node to the right
+    print(current->right, depth+1);//go to the right increasing the depth
   }
-  for (int i = 0; i < depth; i++) {
+  for (int i = 0; i < depth; i++) {//print out the right amount of tabs
     cout << "\t";
   }
-  cout << current->value;
-  if (current->color == 0) {
-    cout << " Red\n";
+  cout << current->value;//print out the value of the node
+  if (current->color == 0) {//if the node is red
+    cout << " Red\n";//print out red
   }
-  else {
-    cout << " Black\n";
+  else {//otherwise the node is black
+    cout << " Black\n";//print out black
   }
-  if (current->left != NULL) {
-    print(current->left, depth+1);
+  if (current->left != NULL) {//if left is not empty
+    print(current->left, depth+1);//go down to the left
   }
 }
