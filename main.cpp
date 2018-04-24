@@ -58,7 +58,7 @@ int main () {
   node* root;
   node* n = new node(5);
   insert(root,n);
-  node* b = new node(7);
+  node* b = new node(4);
   insert(root,b);
   node* c = new node(6);
   insert(root,c);
@@ -69,25 +69,47 @@ int main () {
 }
 
 void rotateLeft(node* n) {
-  node* nnew = n->right;
-  if (nnew != NULL) {
-    n->right = nnew->left;
-    nnew->left = n;
-    nnew->parent - n->parent;
-    n->parent = nnew;
+  node* r = n->right;
+  if (r) {
+    n->right = r->left;
+    if (n->right) {
+      n->right->parent = n;
+    }
+    r->parent = n->parent;
+    if (r->parent) {
+      if (r->parent->left == n) {
+	r->parent->left = r;
+      }
+      else {
+	r->parent->right = r;
+      }
+    }
+    r->left = n;
+    n->parent = r;    
   }
 }
 
 void rotateRight(node* n) {
-  node* nnew = n->left;
-  if (nnew != NULL) {
-    n->left = nnew->right;
-    nnew->right = n;
-    nnew->parent = n->parent;
-    n->parent = nnew;
+  node* l = n->left;
+  if (l) {
+    n->left = l->right;
+    if (n->left) {
+      n->left->parent = n;
+    }
+    l->parent = n->parent;
+    if (l->parent) {
+      if (l->parent->left == n) {
+	l->parent->left = l;
+      }
+      else {
+	l->parent->right = l;
+      }
+    }
+    l->right = n;
+    n->parent = l;
   }
 }
-
+  
 node* insert(node* root, node* n) {
   insertRe(root, n);
   insertRepairTree(n);
@@ -99,7 +121,7 @@ node* insert(node* root, node* n) {
 }
 
 void insertRe(node* root, node* n) {
-  if (root != NULL && n->value < root->value) {
+  if (n->value < root->value) {
     if (root->left != NULL) {
       insertRe(root->left, n);
       return;
@@ -108,7 +130,7 @@ void insertRe(node* root, node* n) {
       root->left = n;
     }
   }
-  else if(root != NULL && n->value >= root->value) {
+  else if(n->value >= root->value) {
     if (root->right != NULL) {
       insertRe(root->right, n);
       return;
@@ -121,52 +143,51 @@ void insertRe(node* root, node* n) {
 
 void insertRepairTree(node* n) {
   if (parent(n) == NULL) {//case 1
-    n->color = 1;
+    n->color = 1;//set the color to black
   }
-  else if (parent(n)->color == 0) {//case 2 if the parent of n is black
-    //   return;
-  
-    /* else*/ if(uncle(n) != NULL && uncle(n)->color == 0) {//case3 if the uncle of n is red
-    parent(n)->color = 1;
-    uncle(n)->color = 1;
-    grandParent(n)->color = 0;
-    insertRepairTree(grandParent(n));
-    }
-  else {//case 4
-    node* p = parent(n);
-    node* g = grandParent(n);
-    if (n == g->left->right) {
-      rotateLeft(n);
-      n = n->left;
-      insertRepairTree(g);
-    }
-    else if (n == g->right->left) {
-      rotateRight(p);
-      n = n->right;
-    }
-    p = parent(n);
-    g = grandParent(n);
-    if (n == p->left) {
-      rotateRight(g);
+  else if (parent(n)->color == 0) {//if the color is red
+    if (uncle(n) && uncle(n)->color == 0) {
+      uncle(n)->color = 1;
+      parent(n)->color = 1;
+      grandParent(n)->color = 0;
+      insertRepairTree(grandParent(n));
     }
     else {
-      rotateLeft(g);
-      p->color = 1;
-      g->color = 0;
+      if (grandParent(n)->left && n == grandParent(n)->left->right) {
+	rotateLeft(parent(n));
+	n = n->left;
+      }
+      else if (grandParent(n)->right && n == grandParent(n)->right->left) {
+	rotateRight(parent(n));
+	n = n->right;
+      }
+      grandParent(n)->color= 0;
+      parent(n)->color = 1;
+      if (parent(n)->left == n) {
+	rotateRight(grandParent(n));
+      }
+      else {
+	rotateLeft(grandParent(n));
+      }
     }
   }
 }
-}
+ 
 void print(node* current, int depth) {
-  if (current->right != NULL && (current->right != NULL)) {
-      print(current->right, depth+1);
-    }
-    int tab = depth;
-    for (tab; tab > 0; tab--) {
-      cout << "\t";
-    }
-    cout << current->value << endl;
-    if (current->right != NULL && (current->left != NULL)) {
-      print(current->right, depth+1);      
-    }
+  if (current->right != NULL) {
+    print(current->right, depth+1);
+  }
+  for (int i = 0; i < depth; i++) {
+    cout << "\t";
+  }
+  cout << current->value;
+  if (current->color == 0) {
+    cout << " Red\n";
+  }
+  else {
+    cout << " Black\n";
+  }
+  if (current->left != NULL) {
+    print(current->left, depth+1);
+  }
 }
