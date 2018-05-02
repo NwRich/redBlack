@@ -21,11 +21,13 @@ node* parent(node* n) {
   return n->parent;
   }
 node* grandParent(node* n) {
-  node* p = parent(n);   
+  node* p = parent(n);
   if (p == NULL) {
     return NULL;
   }
-  return parent(p); 
+  else {
+    return p->parent;
+  }
 }
 node* brother(node* n) {
   node* p = parent(n);
@@ -77,7 +79,7 @@ int main () {
 
 void rotateLeft(node* n) {
   node* r = n->right;
-  if (r) {
+  if (r != NULL) {
     n->right = r->left;
     if (n->right) {
       n->right->parent = n;
@@ -181,7 +183,7 @@ void insertCase3(node* n) {
   insertRepairTree(grandParent(n));
 }
 void insertCase41(node* n) {
-  node* p = parent(n);
+  node* p = n->parent;
   node* g = grandParent(n);
   if (g != NULL && g->left != NULL && g->left->right != NULL) {
     if (n == g->left->right) {
@@ -195,12 +197,12 @@ void insertCase41(node* n) {
       }
     }
   }
-  insertCase41(n);
+  insertCase42(n);
 }
 void insertCase42(node* n) {
   node* p = parent(n);
   node* g = grandParent(n);
-  if (n == p->left) {
+  if (p->left != NULL && n == p->left) {
     rotateRight(g);
   }
   else {
