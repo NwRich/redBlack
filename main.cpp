@@ -2,6 +2,10 @@
  *a red black tree
  */
 #include <iostream>
+#include <ctype.h>
+#include <cstring>
+#include <stdlib.h>
+#include <fstream>
 
 using namespace std;
 /*all containing the node and its functions*/  
@@ -22,9 +26,7 @@ node* grandParent(node* n) {
   if (p == NULL) {
     return NULL;
   }
-  else {
-    return p->parent;
-  }
+  return p->parent;
 }
 
 node* brother(node* n) {
@@ -59,24 +61,41 @@ void print(node* current, int depth);
 void insertCase1(node* n);
 void insertCase2(node* n);
 void insertCase3(node* n);
-void insertCase41(node* n);
-void insertCase42(node* n);
+void insertCase4(node* n);
 
 int main () {
-  node* root;
-  node* n = new node();
-  n->value = 1;
-  insert(root,n);
-  node* b = new node();
-  b->value = 2;
-  insert(root,b);
-  node* c = new node();
-  c->value = 13;
-  insert(root,c);
-  node* d = new node();
-  d->value = 24;
-  insert(root,d);
-  print(root,0);
+  node* root = NULL;
+  char* input = new char[16];
+  bool working = true;
+  while (working = true) {
+    cout << "input a number or file to import from a file or quit" << endl;
+    cin.getline(input, 16);
+    if (strcmp(input, "quit") == 0) {
+      return 0;
+    }
+    else if (strcmp(input, "file") == 0) {
+      cout << "input the file name" << endl;
+      ifstream inFile;
+      cin >> input;
+      inFile.open(input);
+      char inputFile[500];
+      inFile.getline(inputFile, 500);
+      inFile.close();
+      char* c = strtok(inputFile, ",");
+      while (c != NULL) {
+	node* n = new node();
+	n->value = atoi(c);
+	insert(root, n);
+	c = strtok(NULL, ",");
+      }
+    }
+    else {
+      node* n = new node;
+      n->value = atoi(input);
+      root = insert(root, n);
+      print(root,0);
+    }
+  }
   return 0;
 }
 
@@ -140,8 +159,8 @@ void insertRe(node* root, node* n) {
   if (root == NULL) {
     return;
     //root->value = n->value;
-      }
-  else if (n->value < root->value) {//if the input is less than the root
+  }
+  if (n->value < root->value) {//if the input is less than the root
     if (root->left != NULL) {//and the left root is not empty
       insertRe(root->left, n);//go left and call insertRe again
       return;//end
@@ -178,7 +197,7 @@ void insertRepairTree(node* n) {
     insertCase3(n);
   }
   else {
-    insertCase41(n);
+    insertCase4(n);
   }
 }
 
@@ -199,36 +218,25 @@ void insertCase3(node* n) {
   insertRepairTree(grandParent(n));
 }
 
-void insertCase41(node* n) {
-  node* p = n->parent;
-  node* g = grandParent(n);
-  if (g != NULL && g->left != NULL && g->left->right != NULL) {
-    if (n == g->left->right) {
-      rotateLeft(p);
-      n = n->left;
-    }
-  }
-  else if (g != NULL && g->right != NULL && g->right->left != NULL) {
-    if (n == g->right->left) {
-      rotateRight(p);
-      n = n->right;
-    }
-  }
-  if (grandParent(n) != NULL) {
-    insertCase42(n);
-  }
-}
-
-void insertCase42(node* n) {
+void insertCase4(node* n) {
   node* p = parent(n);
   node* g = grandParent(n);
-  if (p->left != NULL && n == p->left) {
+  if(g != NULL && g->left != NULL && n == g->left->right) {
+    rotateLeft(p);
+    n = n->left;
+  }
+  else if (g != NULL && g->right != NULL && n == g->right->left) {
+    rotateRight(p);
+    n = n->right;
+  }
+  if(n == parent(n)->left) {
     rotateRight(g);
   }
-  else {
+  else if (n == parent(n)->right) {
     rotateLeft(g);
   }
-  p->color = 1;
+  parent(n)->color = 1;
+  n->color = 0;
   g->color = 0;
 }
  
