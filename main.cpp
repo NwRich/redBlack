@@ -51,7 +51,6 @@ node* uncle(node* n) {
   return brother(p);
 }
 
-//node* root = new node();
 void insertRe(node* root, node* n);
 void insertRepairTree(node* n);
 node* insert(node* root, node* n);//maybe pass in root by reference
@@ -85,7 +84,7 @@ int main () {
       while (c != NULL) {
 	node* n = new node();
 	n->value = atoi(c);
-	insert(root, n);
+	root = insert(root, n);
 	c = strtok(NULL, ",");
       }
     }
@@ -101,48 +100,54 @@ int main () {
 
 void rotateLeft(node* n) {
   node* newn = n->right;
-  n->right = newn->left;
-  if (newn->left != NULL) {
-    newn->left->parent = n;
+  if (newn != NULL) {
+    n->right = newn->left;
+    if (newn->left != NULL) {
+      newn->left->parent = n;
+      newn->parent->right = newn->left;
+    }
+    newn->left = n;
+    newn->parent = n->parent;
+    if (n->parent != NULL && n->parent->right == n) {
+      n->parent->right = newn;
+    }
+    else if (n->parent != NULL && n->parent->left == n) {
+      n->parent->left = newn;
+    }
+    if (newn->parent != NULL && newn->parent->right == newn) {
+      newn->parent->right = newn;
+    }
+    else if (newn->parent != NULL && newn->parent->left == newn) {
+      newn->parent->left = newn;
+    }
+    n->parent = newn;
   }
-  newn->left = n;
-  newn->parent = n->parent;
-  if (n->parent != NULL && n->parent->right == n) {
-    n->parent->right = newn;
-  }
-  else if (n->parent != NULL && n->parent->left == n) {
-    n->parent->left = newn;
-  }
-  if (newn->parent != NULL && newn->parent->right == newn) {
-    newn->parent->right = newn;
-  }
-  else if (newn->parent != NULL && newn->parent->left == newn) {
-    newn->parent->left = newn;
-  }
-  n->parent = newn;
 }
 
 void rotateRight(node* n) {
   node* newn = n->left;
-  n->left = newn->right;
-  if (newn->right != NULL) {
-    newn->right->parent = n;
+  if (newn != NULL) {
+    n->left = newn->right;
+    if (newn->right != NULL) {
+      newn->right->parent = n;
+      newn->parent->left = newn->right;
+    }
+    newn->right = n;
+    newn->parent = n->parent;
+    if(n->parent != NULL && n->parent->right == n) {
+      n->parent->right == newn;
+    }
+    else if (n->parent != NULL && n->parent->left == n) {
+      n->parent->left = newn;
+    }
+    if (newn->parent != NULL && newn->parent->right == newn) {
+      newn->parent->right = newn;
+    }
+    else if (newn->parent != NULL && newn->parent->left == newn) {
+      newn->parent->left = newn;
+    }
+    n->parent = newn;
   }
-  newn->right = n;
-  newn->parent = n->parent;
-  if(n->parent != NULL && n->parent->right == n) {
-    n->parent->right == newn;
-  }
-  else if (n->parent != NULL && n->parent->left == NULL) {
-    n->parent->left = newn;
-  }
-  if (newn->parent != NULL && newn->parent->right == newn) {
-    newn->parent->right = newn;
-  }
-  else if (newn->parent != NULL && newn->parent->left == newn) {
-    newn->parent->left = newn;
-  }
-  n->parent = newn;
 }
 
 node* insert(node* root, node* n) {//maybe pass in root by reference
@@ -158,7 +163,6 @@ node* insert(node* root, node* n) {//maybe pass in root by reference
 void insertRe(node* root, node* n) {
   if (root == NULL) {
     return;
-    //root->value = n->value;
   }
   if (n->value < root->value) {//if the input is less than the root
     if (root->left != NULL) {//and the left root is not empty
@@ -167,7 +171,7 @@ void insertRe(node* root, node* n) {
     }
     else {//otherwise
       root->left = n;//set left to be the input
-      //n->parent = root;
+      //n->parent = root;//was commeted out
     }
   }
   else if(n->value >= root->value) {//if the input is greater than or equal to the root
@@ -177,7 +181,7 @@ void insertRe(node* root, node* n) {
     }
     else {//otherwise
       root->right = n;//set the right root as input
-      //n->parent = root;
+      // n->parent = root;//was commeted out
     }
   }
   n->parent = root;
@@ -221,23 +225,32 @@ void insertCase3(node* n) {
 void insertCase4(node* n) {
   node* p = parent(n);
   node* g = grandParent(n);
-  if(g != NULL && g->left != NULL && n == g->left->right) {
+  if(/*g != NULL &&*/ g->left != NULL && n == g->left->right) {
     rotateLeft(p);
     n = n->left;
   }
-  else if (g != NULL && g->right != NULL && n == g->right->left) {
+  else if (/*g != NULL &&*/ g->right != NULL && n == g->right->left) {
     rotateRight(p);
     n = n->right;
   }
-  if(n == parent(n)->left) {
+  parent(n)->color = 1;
+  n->color = 0;
+  g->color = 0;
+  if (p->left == n) {
+    rotateRight(g);
+  }
+  else {
+    rotateLeft(g);
+  }
+  /* if(n == parent(n)->left) {
     rotateRight(g);
   }
   else if (n == parent(n)->right) {
     rotateLeft(g);
   }
-  parent(n)->color = 1;
+  parent(n)->color = 1;//put an if parent not null "fixes". the problem
   n->color = 0;
-  g->color = 0;
+  g->color = 0;*/
 }
  
 void print(node* current, int depth) {
