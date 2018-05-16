@@ -1,4 +1,4 @@
-/*Nicholas Rich 4/11/18
+/*Nicholas Rich 5/16/18
  *a red black tree
  */
 #include <iostream>
@@ -17,11 +17,11 @@ struct node {
   int value = NULL;
 };
 
-node* parent(node* n) {
+node* parent(node* n) {//returns the parent of the nod
   return n->parent;
 }
 
-node* grandParent(node* n) {
+node* grandParent(node* n) {//returns the grandparent of the node
   node* p = parent(n);
   if (p == NULL) {
     return NULL;
@@ -29,7 +29,7 @@ node* grandParent(node* n) {
   return p->parent;
 }
 
-node* brother(node* n) {
+node* brother(node* n) {//returns the left or right of the parent of thenode
   node* p = parent(n);
   if (p == NULL) {
     return NULL;
@@ -42,7 +42,7 @@ node* brother(node* n) {
   }
 }
 
-node* uncle(node* n) {
+node* uncle(node* n) {//returns the uncle of the node
   node* p = parent(n);
   node* g = grandParent(n);
   if (g == NULL) {
@@ -51,6 +51,7 @@ node* uncle(node* n) {
   return brother(p);
 }
 
+/*prototypes*/
 void insertRe(node* root, node* n);
 void insertRepairTree(node* n);
 node* insert(node* root, node* n);//maybe pass in root by reference
@@ -63,18 +64,18 @@ void insertCase3(node* n);
 void insertCase4(node* n);
 
 int main () {
-  node* root = NULL;
-  char* input = new char[16];
-  bool working = true;
-  while (working = true) {
-    cout << "input a number or file to import from a file or quit" << endl;
-    cin.getline(input, 16);
-    if (strcmp(input, "quit") == 0) {
-      return 0;
+  node* root = NULL;//used to hold the tree
+  char* input = new char[16];//used for user input
+  bool working = true;//used to end the program
+  while (working = true) {//while the user is working
+    cout << "input a number or file to import from a file or quit" << endl;//promt the user for an input
+    cin.getline(input, 16);//get the response
+    if (strcmp(input, "quit") == 0) {//if the response is quit
+      return 0;//end the program
     }
-    else if (strcmp(input, "file") == 0) {
-      cout << "input the file name" << endl;
-      ifstream inFile;
+    else if (strcmp(input, "file") == 0) {//if the input is file
+      cout << "input the file name" << endl;//promt for an input
+      ifstream inFile;//read in from a file
       cin >> input;
       inFile.open(input);
       char inputFile[500];
@@ -88,7 +89,7 @@ int main () {
 	c = strtok(NULL, ",");
       }
     }
-    else {
+    else {//otherwise add to the tree
       node* n = new node;
       n->value = atoi(input);
       root = insert(root, n);
@@ -98,13 +99,12 @@ int main () {
   return 0;
 }
 
-void rotateLeft(node* n) {
+void rotateLeft(node* n) {//used to rotate left around a node
   node* newn = n->right;
   if (newn != NULL) {
     n->right = newn->left;
     if (newn->left != NULL) {
       newn->left->parent = n;
-      newn->parent->right = newn->left;
     }
     newn->left = n;
     newn->parent = n->parent;
@@ -124,28 +124,23 @@ void rotateLeft(node* n) {
   }
 }
 
-void rotateRight(node* n) {
+void rotateRight(node* n) {//used to rotate right around a node
   node* newn = n->left;
   if (newn != NULL) {
     n->left = newn->right;
-    if (newn->right != NULL) {
-      newn->right->parent = n;
-      newn->parent->left = newn->right;
+    if (n->left != NULL) {
+      n->left->parent = n;
+    }
+    newn->parent = n->parent;
+    if (newn->parent != NULL) {
+      if (newn->parent->left == n) {
+	newn->parent->left = newn;
+      }
+      else {
+	newn->parent->right = newn;
+      }
     }
     newn->right = n;
-    newn->parent = n->parent;
-    if(n->parent != NULL && n->parent->right == n) {
-      n->parent->right == newn;
-    }
-    else if (n->parent != NULL && n->parent->left == n) {
-      n->parent->left = newn;
-    }
-    if (newn->parent != NULL && newn->parent->right == newn) {
-      newn->parent->right = newn;
-    }
-    else if (newn->parent != NULL && newn->parent->left == newn) {
-      newn->parent->left = newn;
-    }
     n->parent = newn;
   }
 }
@@ -181,7 +176,6 @@ void insertRe(node* root, node* n) {
     }
     else {//otherwise
       root->right = n;//set the right root as input
-      // n->parent = root;//was commeted out
     }
   }
   n->parent = root;
@@ -190,14 +184,14 @@ void insertRe(node* root, node* n) {
   n->color = 0;
 }
 
-void insertRepairTree(node* n) {
+void insertRepairTree(node* n) {//repair the tree
   if (parent(n) == NULL) {
     insertCase1(n);
     }
   else if (parent(n)->color == 1 && parent(n) != NULL) {
     insertCase2(n);
   }
-  else if (uncle(n) != NULL && uncle(n)->color == 0) {//calling uncle when it doesnt exist cause seg faults
+  else if (uncle(n) != NULL && uncle(n)->color == 0) {
     insertCase3(n);
   }
   else {
@@ -205,52 +199,41 @@ void insertRepairTree(node* n) {
   }
 }
 
-void insertCase1(node* n) {
+void insertCase1(node* n) {//if its a root
   if (parent(n) == NULL) {
     n->color = 1;
   }
 }
 
-void insertCase2(node* n) {
+void insertCase2(node* n) {//dont do anything
   return;
 }
 
-void insertCase3(node* n) {
+void insertCase3(node* n) {//if parent and uncle are red repaint them black
   parent(n)->color = 1;
   uncle(n)->color = 1;
   grandParent(n)->color = 0;
   insertRepairTree(grandParent(n));
 }
 
-void insertCase4(node* n) {
-  node* p = parent(n);
-  node* g = grandParent(n);
-  if(/*g != NULL &&*/ g->left != NULL && n == g->left->right) {
-    rotateLeft(p);
+void insertCase4(node* n) {//do some fancy stuff thats no fun
+  if (grandParent(n)->left != NULL && n == grandParent(n)->left->right) {
+    rotateLeft(parent(n));
     n = n->left;
   }
-  else if (/*g != NULL &&*/ g->right != NULL && n == g->right->left) {
-    rotateRight(p);
+  else if (grandParent(n)->right != NULL && n == grandParent(n)->right->left) {
+    rotateRight(parent(n));
     n = n->right;
   }
   parent(n)->color = 1;
   n->color = 0;
-  g->color = 0;
-  if (p->left == n) {
-    rotateRight(g);
-  }
-  else {
-    rotateLeft(g);
-  }
-  /* if(n == parent(n)->left) {
-    rotateRight(g);
+  grandParent(n)->color = 0;
+  if (n == parent(n)->left) {
+    rotateRight(grandParent(n));
   }
   else if (n == parent(n)->right) {
-    rotateLeft(g);
+    rotateLeft(grandParent(n));
   }
-  parent(n)->color = 1;//put an if parent not null "fixes". the problem
-  n->color = 0;
-  g->color = 0;*/
 }
  
 void print(node* current, int depth) {
