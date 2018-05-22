@@ -69,16 +69,36 @@ void deleteCase2(node* n);
 void deleteCase3(node* n);
 void deleteCase4(node* n);
 void deleteCase5(node* n);
+void deleteCase6(node* n);
+node* search(node* current, int input);
 
 int main () {
   node* root = NULL;//used to hold the tree
   char* input = new char[16];//used for user input
   bool working = true;//used to end the program
   while (working = true) {//while the user is working
-    cout << "input a number or file to import from a file or quit" << endl;//promt the user for an input
+    cout << "input a number, from a file, search, delete, or quit" << endl;//promt the user for an input
     cin.getline(input, 16);//get the response
     if (strcmp(input, "quit") == 0) {//if the response is quit
       return 0;//end the program
+    }
+    else if (strcmp(input, "delete") == 0) {
+      cout << "what number do you want to delete?" << endl;
+      int input;
+      cin >> input;
+      if (root != NULL) {
+	node* n = search(root, input);
+	replaceNode(root, n);//not the right function
+      }
+      else {
+	cout << "the tree is empty" << endl;
+      }
+    }
+    else if (strcmp(input, "search") == 0) {
+      int input = 0;
+      cout << "what number do you want to search for?" << endl;
+      cin >> input;
+      search(root, input);
     }
     else if (strcmp(input, "file") == 0) {//if the input is file
       cout << "input the file name" << endl;//promt for an input
@@ -319,8 +339,53 @@ void deleteCase4(node* n) {
 }
 
 void deleteCase5(node* n) {
-  cout << "hello there" << endl;
-  cout << "general Kenobi" << endl;
+  node* b = brother(n);
+  if (b != NULL && b->color == 1) {
+    if (n == n->parent->left &&
+	(b->right == NULL || b->right->color == 1) && (b->left != NULL && b->left->color == 0)) {
+      b->color = 0;
+      b->left->color = 1;
+      rotateRight(b);
+    }
+    else if (n == n->parent->right &&
+	     (b->left == NULL || b->left->color == 1) && (b->right != NULL && b->right->color == 0)) {
+      b->color = 0;
+      b->right->color = 1;
+      rotateLeft(b);
+    }
+  }
+  deleteCase6(n);
+}
+
+void deleteCase6(node* n) {
+  node* b = brother(n);
+  b->color = n->parent->color;
+  n->parent->color = 1;
+  if (n == n->parent->left) {
+    b->right->color = 1;
+    rotateLeft(n->parent);
+  }
+  else {
+    b->left->color = 1;
+    rotateRight(n->parent);
+  }
+}
+
+node* search(node* current, int input) {
+  if (current->right != NULL && current->value != input && current->value < input) {
+    current = current->right;
+    search(current, input);
+    exit;
+  }
+  else if (current->left != NULL) {
+    current = current->left;
+    search(current, input);
+    exit;
+  }
+  if (current->value == input) {
+    cout << endl << "the number is in the tree" << endl << endl;
+    return current;
+  }
 }
 
 void print(node* current, int depth) {
