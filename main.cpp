@@ -62,6 +62,13 @@ void insertCase1(node* n);
 void insertCase2(node* n);
 void insertCase3(node* n);
 void insertCase4(node* n);
+void replaceNode(node* n, node* child);
+void deleteOneChild(node* n);
+void deleteCase1(node* n);
+void deleteCase2(node* n);
+void deleteCase3(node* n);
+void deleteCase4(node* n);
+void deleteCase5(node* n);
 
 int main () {
   node* root = NULL;//used to hold the tree
@@ -235,7 +242,87 @@ void insertCase4(node* n) {//do some fancy stuff thats no fun
     rotateLeft(grandParent(n));
   }
 }
- 
+
+void replaceNode(node* n, node* child) {
+  child->parent = n->parent;
+  if (n->parent != NULL) {
+    if (n == n->parent->left) {
+      n->parent->left = child;
+    }
+    else {
+      n->parent->right = child;
+    }
+  }
+}
+
+void deleteOneChild(node* n) {
+  node* child;
+  if (n->left != NULL && n->right == NULL) {
+    child = n->left;
+  }
+  else if (n->right != NULL && n->left == NULL) {
+    child = n->right;
+  }
+  replaceNode(n,child);
+  if (n->color == 1) {
+    if (child->color = 0) {
+      child->color = 1;
+    }
+    else {
+      deleteCase1(child);
+    }
+  }
+  delete n;
+}
+
+void deleteCase1(node* n) {
+  if (n->parent != NULL) {
+    deleteCase2(n);
+  }
+}
+
+void deleteCase2(node* n) {
+  node* b = brother(n);
+  if (b->color == 0) {
+    n->parent->color = 0;
+    b->color = 1;
+    if (n->parent != NULL && n == n->parent->left) {
+      rotateLeft(n->parent);
+    }
+    else {
+      rotateRight(n->parent);
+    }
+  }
+  deleteCase3(n);
+}
+
+void deleteCase3(node* n) {
+  node* b = brother(n);
+  if (n->parent->color == 1 && b->color == 1 && b->left->color == 1 && b->right->color == 1) {//have to check for null stuff here
+    b->color = 0;
+    deleteCase1(n->parent);
+  }
+  else {
+    deleteCase4(n);
+  }
+}
+
+void deleteCase4(node* n) {
+  node* b = brother(n);
+  if (n->parent->color == 0 && b->color == 1 && b->left->color == 1 && b->right->color == 1) {//gonna have to check for null here
+    b->color = 0;
+    n->parent->color = 1;
+  }
+  else {
+    deleteCase5(n);
+  }
+}
+
+void deleteCase5(node* n) {
+  cout << "hello there" << endl;
+  cout << "general Kenobi" << endl;
+}
+
 void print(node* current, int depth) {
   if (current->right != NULL) {//if there is a node to the right
     print(current->right, depth+1);//go to the right increasing the depth
