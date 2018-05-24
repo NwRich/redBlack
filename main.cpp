@@ -74,7 +74,6 @@ node* IOS(node* n);
 void del(node* n, node* &root);
 node* search(node* current, int input);
 
-
 int main () {
   node* root = NULL;//used to hold the tree
   char* input = new char[16];//used for user input
