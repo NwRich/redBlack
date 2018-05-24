@@ -70,7 +70,10 @@ void deleteCase3(node* n);
 void deleteCase4(node* n);
 void deleteCase5(node* n);
 void deleteCase6(node* n);
+node* IOS(node* n);
+void del(node* n, node* &root);
 node* search(node* current, int input);
+
 
 int main () {
   node* root = NULL;//used to hold the tree
@@ -88,7 +91,7 @@ int main () {
       cin >> input;
       if (root != NULL) {
 	node* n = search(root, input);
-	replaceNode(root, n);//not the right function
+	del(n, root);//not the right function
       }
       else {
 	cout << "the tree is empty" << endl;
@@ -296,12 +299,14 @@ void deleteOneChild(node* n) {
 }
 
 void deleteCase1(node* n) {
+  cout << "case 1" << endl;
   if (n->parent != NULL) {
     deleteCase2(n);
   }
 }
 
 void deleteCase2(node* n) {
+  cout << "case 2" << endl;
   node* b = brother(n);
   if (b->color == 0) {
     n->parent->color = 0;
@@ -317,8 +322,9 @@ void deleteCase2(node* n) {
 }
 
 void deleteCase3(node* n) {
+  cout << "case 3" << endl;
   node* b = brother(n);
-  if (n->parent->color == 1 && b->color == 1 && b->left->color == 1 && b->right->color == 1) {//have to check for null stuff here
+  if (n->parent->color == 1 && b->color == 1 && b->left->color == 1 && b->right->color == 1) {
     b->color = 0;
     deleteCase1(n->parent);
   }
@@ -328,10 +334,13 @@ void deleteCase3(node* n) {
 }
 
 void deleteCase4(node* n) {
+  cout << "case 4" << endl;
   node* b = brother(n);
-  if (n->parent->color == 0 && b->color == 1 && b->left->color == 1 && b->right->color == 1) {//gonna have to check for null here
-    b->color = 0;
-    n->parent->color = 1;
+  if (b->left != NULL && b->right != NULL) {
+    if (n->parent->color == 0 && b->color == 1 && b->left->color == 1 && b->right->color == 1) {
+      b->color = 0;
+      n->parent->color = 1;
+    }
   }
   else {
     deleteCase5(n);
@@ -339,6 +348,7 @@ void deleteCase4(node* n) {
 }
 
 void deleteCase5(node* n) {
+  cout << "case 5" << endl;
   node* b = brother(n);
   if (b != NULL && b->color == 1) {
     if (n == n->parent->left &&
@@ -358,33 +368,81 @@ void deleteCase5(node* n) {
 }
 
 void deleteCase6(node* n) {
+  cout << "case 6" << endl;
   node* b = brother(n);
   b->color = n->parent->color;
   n->parent->color = 1;
-  if (n == n->parent->left) {
+  if (n == n->parent->left && b->right != NULL) {
     b->right->color = 1;
     rotateLeft(n->parent);
   }
-  else {
+  else if (b->left != NULL) {
     b->left->color = 1;
     rotateRight(n->parent);
   }
 }
 
+void del(node* n, node* &root) {
+  node* ios = n;
+  if(n->left != NULL && n->right != NULL) {
+    ios = IOS(n->right);
+    int temp = n->value;
+    n->value = ios->value;
+    ios->value = temp;
+  }
+  if(ios->left == NULL && ios->right == NULL) {
+    if (ios->color == 1) {
+      deleteCase1(ios);
+    }
+    if(ios->parent != NULL) {
+      if (ios->parent->left == ios) {
+	ios->parent->left == NULL;
+      }
+      else {
+	ios->parent->right = NULL;
+      }
+    }
+    else {
+      root = NULL;
+    }
+    delete ios;
+    return;
+  }
+  if (n == root) {
+    if (n->left != NULL) {
+      root = n->left;
+      n->left->parent = NULL;
+      n->left->color = 1;
+    }
+    else if (n->right != NULL) {
+      root = n->right;
+      n->right->parent = NULL;
+      n->right->color = 1;
+    }
+    delete n;
+    return;
+  }
+  deleteOneChild(ios);
+}
+
+node* IOS(node* n) {
+  if (n->left != NULL) {
+    IOS(n->left);
+  }
+  else {
+    return n;
+  }
+}
+
 node* search(node* current, int input) {
-  if (current->right != NULL && current->value != input && current->value < input) {
-    current = current->right;
-    search(current, input);
-    exit;
-  }
-  else if (current->left != NULL) {
-    current = current->left;
-    search(current, input);
-    exit;
-  }
   if (current->value == input) {
-    cout << endl << "the number is in the tree" << endl << endl;
     return current;
+  }
+  if (input > current->value) {
+    return search(current->right, input);
+  }
+  else {
+    return search(current->left, input);
   }
 }
 
